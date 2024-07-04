@@ -1,0 +1,3 @@
+rootProject.name = 'ticket-seller'
+include 'user-service'
+
