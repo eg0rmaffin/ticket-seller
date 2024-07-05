@@ -29,13 +29,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void createUser(User user) {
-        String sql = "INSERT INTO users (login, password, full_name) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, full_name) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, user.getUsername(), user.getPassword(), user.getFullName());
     }
 
     @Override
     public void updateUser(User user) {
-        String sql = "UPDATE users SET login = ?, password = ?, full_name = ? WHERE id = ?";
+        String sql = "UPDATE users SET username = ?, password = ?, full_name = ? WHERE id = ?";
         jdbcTemplate.update(sql, user.getUsername(), user.getPassword(), user.getFullName(), user.getId());
     }
 

@@ -26,6 +26,16 @@ services:
     networks:
       - my-network
 
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8761:8761"
+    networks:
+      - my-network
+
   user-service:
     build: ./user-service
     container_name: user-service
@@ -35,6 +45,7 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+      - eureka-server
     networks:
       - my-network
 
