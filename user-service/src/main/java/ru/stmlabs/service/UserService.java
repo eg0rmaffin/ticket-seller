@@ -3,6 +3,7 @@ package ru.stmlabs.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import ru.stmlabs.dao.RoleDao;
 import ru.stmlabs.dao.UserDao;
 import ru.stmlabs.dto.UserDTO;
 import ru.stmlabs.entity.Role;
@@ -16,11 +17,13 @@ public class UserService {
 
     private final UserDao userDao;
     private final KafkaTemplate<String, UserDTO> kafkaTemplate;
+    private final RoleDao roleDao;
 
     @Autowired
-    public UserService(UserDao userDao, KafkaTemplate<String, UserDTO> kafkaTemplate) {
+    public UserService(UserDao userDao, KafkaTemplate<String, UserDTO> kafkaTemplate, RoleDao roleDao) {
         this.userDao = userDao;
         this.kafkaTemplate = kafkaTemplate;
+        this.roleDao = roleDao;
     }
 
     public List<UserDTO> getAllUsers() {
@@ -69,9 +72,12 @@ public class UserService {
         user.setPassword(userDTO.getPassword());
         user.setFullName(userDTO.getFullName());
         user.setRoles(userDTO.getRoles().stream().map(roleName -> {
-            Role role = new Role();
-            role.setName(roleName);
-            return role;
+            return roleDao.findByName(roleName).orElseGet(() -> {
+                Role newRole = new Role();
+                newRole.setName(roleName);
+                roleDao.save(newRole);
+                return newRole;
+            });
         }).collect(Collectors.toSet()));
         return user;
     }

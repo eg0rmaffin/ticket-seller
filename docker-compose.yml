@@ -98,6 +98,8 @@ services:
     depends_on:
       - postgres
       - eureka-server
+      - user-service
+      - kafka
     networks:
       - my-network
     deploy:

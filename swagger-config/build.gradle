@@ -12,8 +12,11 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    implementation project(':swagger-config')
+    implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springdoc:springdoc-openapi-ui:1.5.13'
+    implementation 'org.springdoc:springdoc-openapi-data-rest:1.5.13'
+    implementation 'org.springdoc:springdoc-openapi-kotlin:1.5.13'
+
 }
 
 test {
