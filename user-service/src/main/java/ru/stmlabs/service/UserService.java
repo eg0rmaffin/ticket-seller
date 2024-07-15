@@ -2,6 +2,7 @@ package ru.stmlabs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.stmlabs.dao.RoleDao;
 import ru.stmlabs.dao.UserDao;
@@ -18,12 +19,14 @@ public class UserService {
     private final UserDao userDao;
     private final KafkaTemplate<String, UserDTO> kafkaTemplate;
     private final RoleDao roleDao;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserDao userDao, KafkaTemplate<String, UserDTO> kafkaTemplate, RoleDao roleDao) {
+    public UserService(UserDao userDao, KafkaTemplate<String, UserDTO> kafkaTemplate, RoleDao roleDao, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.kafkaTemplate = kafkaTemplate;
         this.roleDao = roleDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UserDTO> getAllUsers() {
@@ -35,16 +38,22 @@ public class UserService {
         return convertToDTO(user);
     }
 
-    public void createUser(UserDTO userDTO) {
+    public UserDTO createUser(UserDTO userDTO) {
         User user = convertToEntity(userDTO);
-        userDao.createUser(user);
-        kafkaTemplate.send("user-topic", userDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user = userDao.createUser(user);
+        UserDTO savedUserDTO = convertToDTO(user);
+        kafkaTemplate.send("user-topic", savedUserDTO);
+        System.out.println(userDTO);
+        return savedUserDTO;
     }
 
-    public void updateUser(UserDTO userDTO) {
+    public UserDTO updateUser(UserDTO userDTO) {
         User user = convertToEntity(userDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.updateUser(user);
         kafkaTemplate.send("user-topic", userDTO);
+        return userDTO;
     }
 
     public void deleteUser(Long id) {

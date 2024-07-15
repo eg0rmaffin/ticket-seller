@@ -1,13 +1,11 @@
 package ru.stmlabs.dao;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.stmlabs.entity.Role;
 import ru.stmlabs.entity.User;
 
-import javax.sql.DataSource;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,19 +38,23 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void createUser(User user) {
+    public User createUser(User user) {
         String sql = "INSERT INTO users (username, password, full_name) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, user.getUsername(), user.getPassword(), user.getFullName());
-        Long userId = jdbcTemplate.queryForObject("SELECT lastval()", Long.class);
+        Long userId = jdbcTemplate.queryForObject("SELECT currval(pg_get_serial_sequence('users', 'id'))", Long.class);
+        user.setId(userId);
+
         saveUserRoles(userId, user.getRoles());
+        return user;
     }
 
     @Override
-    public void updateUser(User user) {
+    public User updateUser(User user) {
         String sql = "UPDATE users SET username = ?, password = ?, full_name = ? WHERE id = ?";
         jdbcTemplate.update(sql, user.getUsername(), user.getPassword(), user.getFullName(), user.getId());
         deleteUserRoles(user.getId());
         saveUserRoles(user.getId(), user.getRoles());
+        return user;
     }
 
     @Override

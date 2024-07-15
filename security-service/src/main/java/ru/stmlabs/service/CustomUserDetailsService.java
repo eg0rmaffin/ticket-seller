@@ -22,10 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             usersCache.remove(userDTO.getUsername());
             System.out.println("Removed UserDTO: " + userDTO.getUsername());
         } else {
-            // Удаление старой записи, если username изменился
             usersCache.entrySet().removeIf(entry -> entry.getValue().getId().equals(userDTO.getId()));
 
-            // Добавление или обновление записи
             usersCache.put(userDTO.getUsername(), userDTO);
             System.out.println("Received UserDTO: " + userDTO);
         }

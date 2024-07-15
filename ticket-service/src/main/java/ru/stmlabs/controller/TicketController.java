@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import ru.stmlabs.dto.TicketDTO;
 import ru.stmlabs.entity.Ticket;
@@ -29,6 +32,7 @@ public class TicketController {
 
     @Operation(summary = "Get all tickets", description = "Get a list of all tickets with optional filters and pagination")
     @GetMapping("/all")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<TicketDTO>> getAllTickets(
             @RequestParam(required = false) String dateTime,
             @RequestParam(required = false) String departurePoint,
@@ -52,6 +56,7 @@ public class TicketController {
             )
     )
     @PostMapping("/add")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<TicketDTO> addTicket(@RequestBody TicketDTO ticketDTO) {
         Ticket ticket = convertToEntity(ticketDTO);
         ticketService.save(ticket);
@@ -60,6 +65,7 @@ public class TicketController {
 
     @Operation(summary = "Purchase a ticket", description = "Purchase a ticket by its ID")
     @PostMapping("/purchase")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> purchaseTicket(
             @RequestParam Long ticketId,
             @RequestParam Long userId) {
@@ -73,6 +79,7 @@ public class TicketController {
 
     @Operation(summary = "Get tickets for current user", description = "Get all tickets purchased by the current user")
     @GetMapping("/my-tickets/{userId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TicketDTO>> getMyTickets(@PathVariable Long userId) {
         List<Ticket> tickets = ticketService.findPurchasedTicketsForCurrentUser(userId);
         List<TicketDTO> ticketDTOs = tickets.stream().map(this::convertToDTO).collect(Collectors.toList());
@@ -81,6 +88,7 @@ public class TicketController {
 
     @Operation(summary = "Get a ticket by ID", description = "Get a ticket by its ID")
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<TicketDTO> getTicketById(@PathVariable Long id) {
         Optional<Ticket> ticket = ticketService.findById(id);
         return ticket.map(value -> new ResponseEntity<>(convertToDTO(value), HttpStatus.OK))

@@ -53,6 +53,9 @@ public class TicketServiceImpl implements TicketService {
         Optional<Ticket> ticketOptional = ticketDao.findById(ticketId);
         if (ticketOptional.isPresent()) {
             Ticket ticket = ticketOptional.get();
+            if (ticket.isPurchased()) {
+                throw new RuntimeException("Ticket has already been purchased");
+            }
             ticket.purchase(userId);
             ticketDao.update(ticket);
         } else {

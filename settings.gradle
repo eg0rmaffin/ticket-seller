@@ -6,4 +6,5 @@ include 'kafka-config'
 include 'common-dto'
 include 'ticket-service'
 include 'swagger-config'
+include 'api-gateway'
 

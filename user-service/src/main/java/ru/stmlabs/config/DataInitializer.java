@@ -33,7 +33,10 @@ public class DataInitializer {
             userRoles.add(userRole);
             user.setRoles(userRoles);
             userDao.createUser(user);
-            kafkaTemplate.send("user-topic", convertToDTO(user));
+            System.out.println("User ID after saving: " + user.getId());
+            UserDTO userDTO = convertToDTO(user);
+            System.out.println("UserDTO before sending to Kafka: " + userDTO);
+            kafkaTemplate.send("user-topic", userDTO);
             System.out.println("User created and sent to Kafka: user");
 
             User admin = new User();
@@ -47,7 +50,10 @@ public class DataInitializer {
             adminRoles.add(adminRole);
             admin.setRoles(adminRoles);
             userDao.createUser(admin);
-            kafkaTemplate.send("user-topic", convertToDTO(admin));
+            System.out.println("Admin ID after saving: " + admin.getId());
+            UserDTO adminDTO = convertToDTO(admin);
+            System.out.println("AdminDTO before sending to Kafka: " + adminDTO);
+            kafkaTemplate.send("user-topic", adminDTO);
             System.out.println("Admin created and sent to Kafka: admin");
         };
     }
